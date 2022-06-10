@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>eRideStats</title>
+    <meta name="description" content="E vehicle charging station finder.">
+    <meta name="author" content="Shams Chunwai Muqeet Weiren>">
+    <meta property="og:title" content="eRideStats">
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="eRideStats MVP">
+    <link rel="icon" href="images/logo.png">
+
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- Custom Stylesheet-->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="bg-img ">
+        <nav class="light-blue">
+            <div class="nav-wrapper navbar-size">
+                <a href="#" class="brand-logo"><img class="user-image-size" src="images/logo.png" alt="site logo" /></a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a target="_blank" href="https://github.com/SIT725-SCMW/eRideStats/">Our
+                            GitHub</a></li>
+                </ul>
+            </div>
+        </nav>
+        <main class="main-body">
+            <div class="container">
+                <div class="heading row white-text">
+                    <div class="col s12 center-align">
+                        <h3>Charging Vehicles Made Easy and Efficient</h3>
+                        <h4 class="white-text">Our charging station finder for your convenience!</h4>
+                    </div>
+                    <!--search bar-->
+
+                    <div id="options">
+                        <select onchange="disp(this)">
+                            <option value="" disabled="" selected="">Choose station</option>
+                            <option value="1">Deakin Burwood Charge</option>
+                            <option value="2">Werribee</option>
+                            <option value="3">Avalon</option>
+                            <option value="4">ApolloBay</option>
+                            <option value="5">Warragul</option>
+                            <option value="6">Malvern</option>
+                            <option value="7">Glen Waverley</option>
+                            <option value="8">Geelong</option>
+                        </select>
+                    </div>
+
+                    <!--search bar end-->
+                    <div id="divCheckbox" style="display: none;"> </div>
+
+                    <!--button1-->
+                    <div class="center-align">
+                        <a class="waves-effect waves-light btn light-blue modal-trigger" href="#modal2">
+                            <i class="large material-icons left">directions_walk</i>Distance & Coffee Details
+                        </a>
+                        <div id="modal2" class="modal">
+                            <div class="modal-content">
+                                <h4>Results:</h4>
+                                <p id="result"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Ok, thanks!</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end button1-->
+
+                </div>
+
+
+                <!-- Google Map -->
+                <div id="googleMap" style="width:100%;height:400px;"></div>
+
+                <script async defer
+                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_JIBs-ZtPMiYF4CFskEMefsYYrl8RUEE&callback=initMap"></script>
+                <script>
+
+                    function initMap() {
+
+                        const myLatLng = { lat: -37.845824, lng: 145.114648 };
+                        const map = new google.maps.Map(document.getElementById("googleMap"), {
+                            zoom: 8, //zoom level:8
+                            center: myLatLng,
+                        });
+                        const icon = {
+                            //source of image: https://www.flaticon.com/premium-icon/charging-station_4430939?term=gas%20station&page=1&position=23&page=1&position=23&related_id=4430939&origin=tag
+                            url: "/images/charging-station.png", // url
+                            scaledSize: new google.maps.Size(40, 40), // scaled size
+                            origin: new google.maps.Point(0, 0), // origin
+                            anchor: new google.maps.Point(0, 0) // anchor
+                        };
+
+                        const addMarkers = (locations) => {
+                            locations.forEach(location => {
+                                console.log(location.ev_location.latitude)
+                                new google.maps.Marker({
+                                    position: { lat: Number(location.ev_location.latitude), lng: Number(location.ev_location.longitude) },
+                                    map,
+                                    title: location.ev_station_name,
+                                    icon: icon,
+                                })
+
+                            });
+                        }
+                        const getLocation = () => {
+                            $.get("/api/location", (response) => {
+                                if (response.statusCode == 200) {
+                                    console.log(response);
+                                    addMarkers(response.data);
+                                } else {
+                                    console.log(response);
+                                }
+                            });
+                        };
+                        getLocation()
+
+
+                    }
+                    window.initMap = initMap;
+
+                </script>
+                <!-- Display Output-->
+                <script>
+                    function disp(a) {
+                        
+                        var x = document.getElementById("distanceCoffee").options[a.selectedIndex].label;
+                        document.getElementById("result").innerText=x;
+                    }
+                </script>
+
+            </div>
+
+            <!-- creating card section -->
+            <div class="row" id="card-section">
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!--footer section-->
+    <footer class="page-footer bg-primary mt-2 p-0.5 transparent">
+
+        <div class="footer-copyright  light-blue" style="position:fixed;bottom:0;left:0;width:100%;">
+            <div class="container">
+                © 2022 ErideStats Copyright
+                <a class="grey-text text-lighten-4 right" href="#!"></a>
+            </div>
+        </div>
+    </footer>
+    <!--end of footer-->
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/scripts.js"></script>
+
+
+
+</body>
+<!-- end -->
+
+</html>
